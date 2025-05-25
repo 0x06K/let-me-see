@@ -35,5 +35,6 @@ void PrintModuleInfo(DWORD pid) {
 
 
 int main () {
+    // Pass real PID
     PrintModuleInfo(10040);
 }
