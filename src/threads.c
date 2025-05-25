@@ -19,7 +19,7 @@ void PrintThreadsInfo(DWORD pid) {
                 printf("Owner Process ID  : %lu\n", te32.th32OwnerProcessID);
                 printf("Base Priority     : %ld\n", te32.tpBasePri);
                 printf("Delta Priority    : %ld\n", te32.tpDeltaPri);
-                printf("-----------------------------\n");
+                printf("------------------------------\n");
             }
         } while (Thread32Next(hThreadSnap, &te32));
     } else {
