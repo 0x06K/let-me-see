@@ -1,3 +1,3 @@
 # TaskManager
 
-just working on it to learn about system.
+just working on it to learn about system internels.
