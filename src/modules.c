@@ -2,11 +2,7 @@
 #include <tlhelp32.h>
 #include <stdio.h>
 
-#include <windows.h>
-#include <tlhelp32.h>
-#include <stdio.h>
-
-void PrintModuleInfo(DWORD pid) {
+void EnumerateModules(DWORD pid) {
     HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
     if (hModuleSnap == INVALID_HANDLE_VALUE) {
         printf("Failed to take module snapshot.\n");
@@ -29,13 +25,6 @@ void PrintModuleInfo(DWORD pid) {
     } else {
         printf("Failed to enumerate modules.\n");
     }
-
+    printf("--------------------------------------------------\n");
     CloseHandle(hModuleSnap);
-}
-
-
-int main () {
-    DWORD targetPID = 10040; // Replace with your target PID
-    PrintModuleInfo(targetPID);
-    return 0;
 }
