@@ -22,7 +22,7 @@ typedef struct _PEB_PARTIAL {
     PVOID ProcessParameters;
 } PEB_PARTIAL;
 
-void DumpRemoteEnvironment(DWORD pid) {
+void EnumeratePEB(DWORD pid) {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
     if (!hProcess) {
         printf("Failed to open process: %lu\n", GetLastError());
@@ -73,11 +73,4 @@ void DumpRemoteEnvironment(DWORD pid) {
     }
 
     CloseHandle(hProcess);
-}
-
-int main() {
-    // Replace with actual PID
-    DWORD targetPID = 8632;
-    DumpRemoteEnvironment(targetPID);
-    return 0;
 }
