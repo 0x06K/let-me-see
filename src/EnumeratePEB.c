@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <winternl.h>
 
-#pragma comment(lib, "ntdll.lib")  // For NtQueryInformationProcess
 
 typedef NTSTATUS(WINAPI* PNtQueryInformationProcess)(
     HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG);
@@ -77,7 +76,7 @@ void DumpRemoteEnvironment(DWORD pid) {
 }
 
 int main() {
-    // Replace with actual PIDg
+    // Replace with actual PID
     DWORD targetPID = 8632;
     DumpRemoteEnvironment(targetPID);
     return 0;
