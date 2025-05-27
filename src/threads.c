@@ -2,7 +2,7 @@
 #include <tlhelp32.h>
 #include <stdio.h>
 
-void PrintThreadsInfo(DWORD pid) {
+void EnumerateThreads(DWORD pid) {
     HANDLE hThreadSnap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
     if (hThreadSnap == INVALID_HANDLE_VALUE) {
         printf("Failed to create thread snapshot.\n");
@@ -27,10 +27,4 @@ void PrintThreadsInfo(DWORD pid) {
     }
 
     CloseHandle(hThreadSnap);
-}
-
-int main() {
-    DWORD targetPID = 10040; // Replace with your target PID
-    PrintThreadsInfo(targetPID);
-    return 0;
 }
