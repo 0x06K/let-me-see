@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <winternl.h>
 
-
 typedef NTSTATUS(WINAPI* PNtQueryInformationProcess)(
     HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG);
 
