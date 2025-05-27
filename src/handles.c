@@ -30,7 +30,7 @@ typedef NTSTATUS(WINAPI* PNtQuerySystemInformation)(
 );
 
 // --- Main Logic ---
-void EnumerateHandlesByPID(DWORD targetPID) {
+void EnumerateHandles(DWORD targetPID) {
     // Load NtQuerySystemInformation from ntdll
     HMODULE hNtdll = GetModuleHandleA("ntdll.dll");
     if (!hNtdll) {
@@ -88,11 +88,4 @@ void EnumerateHandlesByPID(DWORD targetPID) {
     }
 
     free(handleInfo);
-}
-
-int main() {
-    // Replace with actual PID
-    DWORD targetPID = 1484;
-    EnumerateHandlesByPID(targetPID);
-    return 0;
 }
