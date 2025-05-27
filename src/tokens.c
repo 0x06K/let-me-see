@@ -81,7 +81,7 @@ void EnumerateTokenPrivileges(HANDLE hToken) {
     free(pPrivs);
 }
 
-void PrintTokenInfoFromPID(DWORD pid) {
+void EnumerateTokens(DWORD pid) {
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
     if (!hProcess) {
         printf("OpenProcess failed for PID %lu (Error %lu)\n", pid, GetLastError());
@@ -101,11 +101,4 @@ void PrintTokenInfoFromPID(DWORD pid) {
 
     CloseHandle(hToken);
     CloseHandle(hProcess);
-}
-
-int main(int argc, char* argv[]) {
-    // Replace with actualy PID
-    DWORD pid = 1484;
-    PrintTokenInfoFromPID(pid);
-    return 0;
 }
