@@ -2,7 +2,7 @@
 #include <tlhelp32.h>
 #include <stdio.h>
 
-void EnumerateHeaps(DWORD pid) {
+void EnumerateHeap(DWORD pid) {
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPHEAPLIST, pid);
     if (hSnapshot == INVALID_HANDLE_VALUE) {
         printf("CreateToolhelp32Snapshot failed. Error: %lu\n", GetLastError());
@@ -31,11 +31,4 @@ void EnumerateHeaps(DWORD pid) {
     }
 
     CloseHandle(hSnapshot);
-}
-
-int main() {
-    // Replace with actual PID
-    DWORD targetPID = 1484;
-    EnumerateHeaps(targetPID);
-    return 0;
 }
