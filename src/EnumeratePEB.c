@@ -1,71 +1,84 @@
 #include <windows.h>
-#include <winternl.h>
 #include <stdio.h>
+#include <winternl.h>
+
+#pragma comment(lib, "ntdll.lib")  // For NtQueryInformationProcess
 
 typedef NTSTATUS(WINAPI* PNtQueryInformationProcess)(
-    HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG
-);
+    HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG);
+
+// Partial RTL_USER_PROCESS_PARAMETERS (just enough for Environment)
 typedef struct _RTL_USER_PROCESS_PARAMETERS_PARTIAL {
-    BYTE Reserved1[16];
-    PVOID Reserved2[10];
-    PWSTR Environment;  // Pointer to environment block
+    BYTE Reserved1[0x80];
+    PVOID Environment;
 } RTL_USER_PROCESS_PARAMETERS_PARTIAL;
-void DumpEnvironmentVariables(DWORD pid) {
-    HANDLE hProcess = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, pid);
+
+// Partial PEB struct (just enough to get ProcessParameters)
+typedef struct _PEB_PARTIAL {
+    BYTE Reserved1[2];
+    BYTE BeingDebugged;
+    BYTE Reserved2[1];
+    PVOID Reserved3[2];
+    PVOID Ldr;
+    PVOID ProcessParameters;
+} PEB_PARTIAL;
+
+void DumpRemoteEnvironment(DWORD pid) {
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
     if (!hProcess) {
-        printf("OpenProcess failed: %lu\n", GetLastError());
+        printf("Failed to open process: %lu\n", GetLastError());
         return;
     }
 
-    // Get NtQueryInformationProcess
-    PNtQueryInformationProcess NtQueryInfo =
-        (PNtQueryInformationProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtQueryInformationProcess");
+    HMODULE hNtDll = GetModuleHandleA("ntdll.dll");
+    PNtQueryInformationProcess NtQueryInformationProcess = 
+        (PNtQueryInformationProcess)GetProcAddress(hNtDll, "NtQueryInformationProcess");
 
     PROCESS_BASIC_INFORMATION pbi;
-    NTSTATUS status = NtQueryInfo(hProcess, ProcessBasicInformation, &pbi, sizeof(pbi), NULL);
+    NTSTATUS status = NtQueryInformationProcess(hProcess, 0, &pbi, sizeof(pbi), NULL);
     if (status != 0) {
-        printf("NtQueryInformationProcess failed: 0x%08X\n", status);
+        printf("NtQueryInformationProcess failed: 0x%X\n", status);
         CloseHandle(hProcess);
         return;
     }
 
-    // Read PEB
-    PEB peb;
+    // Read the PEB
+    PEB_PARTIAL peb = { 0 };
     if (!ReadProcessMemory(hProcess, pbi.PebBaseAddress, &peb, sizeof(peb), NULL)) {
         printf("Failed to read PEB: %lu\n", GetLastError());
         CloseHandle(hProcess);
         return;
     }
 
-    // Read RTL_USER_PROCESS_PARAMETERS
-    RTL_USER_PROCESS_PARAMETERS_PARTIAL procParams;
+    // Read ProcessParameters
+    RTL_USER_PROCESS_PARAMETERS_PARTIAL procParams = { 0 };
     if (!ReadProcessMemory(hProcess, peb.ProcessParameters, &procParams, sizeof(procParams), NULL)) {
-        printf("Failed to read process parameters: %lu\n", GetLastError());
+        printf("Failed to read ProcessParameters: %lu\n", GetLastError());
         CloseHandle(hProcess);
         return;
     }
 
     // Read Environment block
-    WCHAR env[32767]; // max size for env block
-    if (!ReadProcessMemory(hProcess, procParams.Environment, &env, sizeof(env), NULL)) {
+    WCHAR envBuffer[32768];  // 32 KB buffer
+    if (!ReadProcessMemory(hProcess, procParams.Environment, envBuffer, sizeof(envBuffer), NULL)) {
         printf("Failed to read environment block: %lu\n", GetLastError());
         CloseHandle(hProcess);
         return;
     }
 
-    // Environment is a block of null-terminated strings, double null at the end
-    WCHAR* p = env;
-    while (*p) {
-        wprintf(L"%s\n", p);
-        p += wcslen(p) + 1;
+    // Parse environment block (null-terminated pairs)
+    WCHAR* ptr = envBuffer;
+    while (*ptr) {
+        wprintf(L"%s\n", ptr);
+        ptr += wcslen(ptr) + 1;
     }
 
     CloseHandle(hProcess);
 }
 
 int main() {
-    // Replace with Actual PID
-    DWORD targetPID = 1484;
-    DumpEnvironmentVariables(targetPID);
+    // Replace with actual PIDg
+    DWORD targetPID = 8632;
+    DumpRemoteEnvironment(targetPID);
     return 0;
 }
