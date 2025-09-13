@@ -1,0 +1,3 @@
+GDT is setuped by the bootloader before jumping on to the entry point of the kernel so that we can create segmented memory layout
+this video explains abt GDT data structure
+https://youtu.be/BQGbBCqUGCc?si=ptJbK5VMMVcVaxs0 
