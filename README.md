@@ -4,3 +4,4 @@
 - mainly to understand exploit development from the ground up  
 - analyzing patterns in stable kernels would’ve been better, but studying OS this semester so...  
 - check resources.txt file for reference links
+- today i worked on GDT implementation check it in docs folder
