@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Directories
-OUT_DIR="./"
+OUT_DIR="build/i686"
 mkdir -p $OUT_DIR
 
 # File names
 BOOT=boot.asm
-KERNEL_SRC=("kmain.c" "vga.c")   # All kernel C files
+KERNEL_SRC=("src/kmain.c" "src/vga.c")   # All kernel C files
 KERNEL_ELF=$OUT_DIR/kernel.elf
 KERNEL_BIN=$OUT_DIR/kernel.bin
 IMG=$OUT_DIR/kernel.img
@@ -23,7 +23,7 @@ echo "[*] Bootloader assembled: boot.bin"
 # -------------------------------
 for SRC in "${KERNEL_SRC[@]}"; do
     OBJ="$OUT_DIR/$(basename $SRC .c).o"
-    i686-linux-gnu-gcc -ffreestanding -m32 -ffunction-sections -c $SRC -o $OBJ -I.
+    i686-linux-gnu-gcc -ffreestanding -m32 -ffunction-sections -c $SRC -o $OBJ -Iinclude
     OBJ_FILES+=("$OBJ")
     echo "[*] Compiled $SRC -> $OBJ"
 done
