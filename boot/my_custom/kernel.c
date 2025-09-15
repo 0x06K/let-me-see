@@ -1,6 +1,11 @@
 #include <stdint.h>
 
 #define VGA 0xB8000
+
+#define KEYBOARD_DATA 0x60
+#define KEYBOARD_STATUS 0x64
+
+
 uint16_t* vga = (uint16_t*)VGA;
 uint16_t cursor = 0;
 
@@ -19,8 +24,7 @@ void print_string(const char* s){
     while(*s) print_char(*s++);
 }
 
-#define KEYBOARD_DATA 0x60
-#define KEYBOARD_STATUS 0x64
+
 
 void kmain() {
     print_string("Keyboard Polling Test\n");
