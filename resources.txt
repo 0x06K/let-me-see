@@ -4,3 +4,9 @@ https://youtu.be/BQGbBCqUGCc?si=ptJbK5VMMVcVaxs0
 
 Here is the bios interrupt list for list for different utilities/functions
 https://www.ctyme.com/intr/int.htm
+
+Here is the bios firmware documentation
+https://uefi.org/specifications
+
+intel processor related:
+https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
