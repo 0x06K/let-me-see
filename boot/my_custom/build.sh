@@ -1,16 +1,54 @@
 #!/bin/bash
 
-nasm -f bin boot.asm -o boot.bin
-# Compile
-gcc -ffreestanding -O2 -m32 -nostdlib -fno-pie -c kernel.c -o kernel.o
+# Directories
+OUT_DIR="build/i686"
+mkdir -p $OUT_DIR
 
-# Link
-ld -m elf_i386 -T linker.ld --oformat binary -o kernel.bin kernel.o
+# File names
+BOOT=boot.asm
+KERNEL_C=kernel.c
+KERNEL_ELF=$OUT_DIR/kernel.elf
+KERNEL_BIN=$OUT_DIR/kernel.bin
+IMG=$OUT_DIR/kernel.img
+OBJ_C=$OUT_DIR/kernel_c.o
 
-objcopy -O binary kernel.elf kernel.bin
-dd if=/dev/zero of=os_image.img bs=512 count=2880
-dd if=boot.bin of=os_image.img bs=512 count=1 conv=notrunc
-dd if=kernel.bin of=os_image.img bs=512 seek=1 conv=notrunc
+# -------------------------------
+# Assemble bootloader (512 bytes)
+# -------------------------------
+nasm -f bin $BOOT -o $OUT_DIR/boot.bin
 
-echo "To run in QEMU:   qemu-system-x86_64 -drive format=raw,file=os_image.img"
-echo "To run with debugging:  qemu-system-x86_64 -drive format=raw,file=os_image.img -monitor stdio -d int,cpu_reset"
+# -------------------------------
+# Compile kernel C
+# -------------------------------
+i686-linux-gnu-gcc -ffreestanding -ffunction-sections -g -O2 -Wall -Wextra -c $KERNEL_C -o $OBJ_C
+
+# -------------------------------
+# Link kernel to ELF
+# -------------------------------
+i686-linux-gnu-ld -T linker.ld -nostdlib -o $KERNEL_ELF $OBJ_C
+
+# -------------------------------
+# Convert ELF to raw binary
+# -------------------------------
+i686-linux-gnu-objcopy -O binary $KERNEL_ELF $KERNEL_BIN
+
+# -------------------------------
+# Create bootable .img
+# -------------------------------
+# 2 MB blank image
+dd if=/dev/zero of=$IMG bs=512 count=4096
+
+# Write bootloader first
+dd if=$OUT_DIR/boot.bin of=$IMG conv=notrunc
+
+# Write kernel binary after 1 sector
+dd if=$KERNEL_BIN of=$IMG bs=512 seek=1 conv=notrunc
+
+echo "[*] Bootable raw image created: $IMG"
+KERNEL_SECTORS=$(( ( $(stat -c%s $OUT_DIR/kernel.bin) + 511 ) / 512 ))
+echo "Kernel size: $KERNEL_SECTORS sectors"
+
+# -------------------------------
+# Boot in QEMU
+# -------------------------------
+qemu-system-i386 -drive format=raw,file=$IMG --no-shutdown --no-reboot -s -S

@@ -21,7 +21,7 @@ start:
     ; Load kernel (1 sector) at 0x10000 (segment 0x1000)
     ; -------------------------
     mov ah, 0x02                ; BIOS read
-    mov al, 1                   ; number of sectors
+    mov al, 3                   ; number of sectors
     mov ch, 0                   ; cylinder
     mov cl, 2                   ; sector (start from 2)
     mov dh, 0                   ; head
@@ -32,7 +32,7 @@ start:
     int 0x13
     jc disk_error
     
-    cmp al, 1
+    cmp al, 3
     jne disk_error
     
     mov si, msg_kernel
