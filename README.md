@@ -1,4 +1,4 @@
-## vulnerable-micro-kernel
+## os-development
 - **under construction :3**
 - just creating a tiny OS
 - mainly to understand exploit development from the ground up  
