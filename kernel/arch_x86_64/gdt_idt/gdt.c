@@ -1,6 +1,9 @@
 #include "gdt.h"
 #include <stdint.h>
 
+// Assembly function to flush/load the GDT
+extern void gdt_flush(uint32_t gdt_ptr_address);
+
 // Our GDT will hold 3 entries: null, code, data
 static gdt_entry_t gdt_entries[3];
 static gdt_ptr_t   gdt_ptr;
@@ -26,23 +29,15 @@ void gdt_init(void)
     // Null descriptor (required)
     gdt_set_entry(0, 0, 0, 0, 0);
 
-    // Kernel code segment: base=0, limit=4GB
+    // Kernel code/data
     gdt_set_entry(1, 0, 0xFFFFF, 0x9A, 0xA0);
-
-    // Kernel data segment: base=0, limit=4GB
     gdt_set_entry(2, 0, 0xFFFFF, 0x92, 0xA0);
+
+    // User code/data (Ring 3)
+    gdt_set_entry(3, 0, 0xFFFFF, 0xFA, 0xA0);
+    gdt_set_entry(4, 0, 0xFFFFF, 0xF2, 0xA0);
+
 
     // Load the new GDT (assembly routine you’ll implement in gdt.asm)
     gdt_flush((uint32_t)&gdt_ptr);
-}
-
-// Assembly function to flush/load the GDT
-extern void gdt_flush(uint32_t gdt_ptr_address){
-    extern void gdt_flush(uint32_t gdt_ptr_address);
-
-void gdt_init(void) {
-    // ... fill gdt_entries and gdt_ptr ...
-    gdt_flush((uint32_t)&gdt_ptr); // ask the assembly routine to load it
-}
-
 }
